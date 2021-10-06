@@ -17,7 +17,7 @@ public class Hero : MonoBehaviour {
 
     [Header("Set Dynamically")]
     [SerializeField]
-    public float _shieldLevel = 1;
+    public float _shieldLevel = 4;
 
     // This variable holds a reference to the last triggering GameObject
     private GameObject lastTriggerGo = null;

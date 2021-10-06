@@ -131,6 +131,27 @@ public class Weapon : MonoBehaviour {
                 p = MakeProjectile(); // Make left Projectile
                 p.transform.rotation = Quaternion.AngleAxis(-10, Vector3.back);
                 p.rigid.velocity = p.transform.rotation * vel;
+                p = MakeProjectile(); // Make secondary right Projectile
+                p.transform.rotation = Quaternion.AngleAxis(15, Vector3.back);
+                p.rigid.velocity = p.transform.rotation * vel;
+                p = MakeProjectile(); // Make secondary left Projectile
+                p.transform.rotation = Quaternion.AngleAxis(-15, Vector3.back);
+                p.rigid.velocity = p.transform.rotation * vel;
+                break;
+
+            case WeaponType.phaser:
+                float theta = Mathf.PI * 2 * (Time.time - lastShotTime)/2;
+                float sin = Mathf.Sin(theta);
+                float velX = vel.x;
+                Vector3 tempVel = vel;
+                tempVel.x = velX + 4 + sin;
+                vel = tempVel;
+                Vector3 rot = new Vector3(0, sin * 45, 0);
+                p = MakeProjectile(); // Make first projectile
+                p.transform.rotation = Quaternion.Euler(rot);
+                p.rigid.velocity = p.transform.rotation * vel;
+                p = MakeProjectile(); // Make second projectile
+                p.rigid.velocity = p.transform.rotation * -vel;
                 break;
         }
     }
