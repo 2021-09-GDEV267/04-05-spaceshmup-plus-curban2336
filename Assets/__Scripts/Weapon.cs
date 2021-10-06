@@ -45,6 +45,7 @@ public class Weapon : MonoBehaviour {
     public WeaponDefinition def;
     public GameObject collar;
     public float lastShotTime; // Time last shot was fired
+    public float age; // How long the projectile has been on screen
     private Renderer collarRend;
 
     private void Start()
@@ -111,6 +112,7 @@ public class Weapon : MonoBehaviour {
         }
         Projectile p;
         Vector3 vel = Vector3.up * def.velocity;
+        Debug.Log(vel.x + " " + vel.y + " " + vel.z);
         if (transform.up.y < 0)
         {
             vel.y = -vel.y;
@@ -140,18 +142,19 @@ public class Weapon : MonoBehaviour {
                 break;
 
             case WeaponType.phaser:
-                float theta = Mathf.PI * 2 * (Time.time - lastShotTime)/2;
-                float sin = Mathf.Sin(theta);
-                float velX = vel.x;
+
                 Vector3 tempVel = vel;
-                tempVel.x = velX + 4 + sin;
+
+                float theta = Mathf.PI * 2 * age / 2;
+                float sin = Mathf.Sin(theta);
+                tempVel.x += 4 * sin;
                 vel = tempVel;
-                Vector3 rot = new Vector3(0, sin * 45, 0);
-                p = MakeProjectile(); // Make first projectile
-                p.transform.rotation = Quaternion.Euler(rot);
+                p = MakeProjectile(); // Make right Projectile
+                p.transform.rotation = Quaternion.AngleAxis(15, Vector3.back);
+                p.rigid.velocity = p.transform.rotation * vel;;
+                p = MakeProjectile(); // Make left Projectile
+                p.transform.rotation = Quaternion.AngleAxis(-15, Vector3.back);
                 p.rigid.velocity = p.transform.rotation * vel;
-                p = MakeProjectile(); // Make second projectile
-                p.rigid.velocity = p.transform.rotation * -vel;
                 break;
         }
     }
@@ -175,5 +178,17 @@ public class Weapon : MonoBehaviour {
         p.type = type;
         lastShotTime = Time.time;
         return p;
+    }
+
+    public void Update()
+    {
+        if(lastShotTime % 2 <= 1)
+        {
+            age = -1;
+        }
+        else if (lastShotTime % 2 >= 1)
+        {
+            age = 1;
+        }
     }
 }
