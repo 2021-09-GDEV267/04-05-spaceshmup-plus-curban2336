@@ -38,6 +38,8 @@ public class WeaponDefinition
 }
 public class Weapon : MonoBehaviour {
     static public Transform PROJECTILE_ANCHOR;
+    private GameObject parent;
+    private GameObject[] phaserList;
 
     [Header("Set Dynamically")]
     [SerializeField]
@@ -45,7 +47,6 @@ public class Weapon : MonoBehaviour {
     public WeaponDefinition def;
     public GameObject collar;
     public float lastShotTime; // Time last shot was fired
-    public float age; // How long the projectile has been on screen
     private Renderer collarRend;
 
     private void Start()
@@ -65,9 +66,13 @@ public class Weapon : MonoBehaviour {
 
         // Find the fireDelegate of the root GameObject
         GameObject rootGO = transform.root.gameObject;
-        if(rootGO.GetComponent<Hero>() != null)
+        if (rootGO.GetComponent<Hero>() != null)
         {
             rootGO.GetComponent<Hero>().fireDelegate += Fire;
+        }
+        if (rootGO.GetComponent<Enemy>() != null)
+        {
+            rootGO.GetComponent<Enemy>().fireDelegate += Fire;
         }
     }
 
@@ -102,7 +107,7 @@ public class Weapon : MonoBehaviour {
 
     public void Fire()
     {
-        Debug.Log("Weapon Fired:" + gameObject.name);
+        //Debug.Log("Weapon Fired:" + gameObject.name);
         // If this.gameObject is inactive, return
         if (!gameObject.activeInHierarchy) return;
         // If it hasn't been enough time between shots, return
@@ -112,7 +117,6 @@ public class Weapon : MonoBehaviour {
         }
         Projectile p;
         Vector3 vel = Vector3.up * def.velocity;
-        Debug.Log(vel.x + " " + vel.y + " " + vel.z);
         if (transform.up.y < 0)
         {
             vel.y = -vel.y;
@@ -121,7 +125,14 @@ public class Weapon : MonoBehaviour {
         {
             case WeaponType.blaster:
                 p = MakeProjectile();
-                p.rigid.velocity = vel;
+                if(p.tag == "ProjectileEnemy")
+                {
+                    p.rigid.velocity = -vel;
+                }
+                else
+                {
+                    p.rigid.velocity = vel;
+                }
                 break;
 
             case WeaponType.spread:
@@ -142,19 +153,25 @@ public class Weapon : MonoBehaviour {
                 break;
 
             case WeaponType.phaser:
-
-                Vector3 tempVel = vel;
-
-                float theta = Mathf.PI * 2 * age / 2;
-                float sin = Mathf.Sin(theta);
-                tempVel.x += 4 * sin;
-                vel = tempVel;
+                parent = Instantiate<GameObject>(def.projectilePrefab);
+                parent.tag = "Untagged";
+                Rigidbody rb = parent.GetComponent<Rigidbody>();
+                MeshRenderer mesh = parent.GetComponent<MeshRenderer>();
+                parent.transform.position = collar.transform.position;
+                parent.transform.SetParent(PROJECTILE_ANCHOR, true);
+                rb.velocity = vel;
+                mesh.enabled = false;
                 p = MakeProjectile(); // Make right Projectile
-                p.transform.rotation = Quaternion.AngleAxis(15, Vector3.back);
-                p.rigid.velocity = p.transform.rotation * vel;;
+                p.transform.rotation = Quaternion.AngleAxis(10, Vector3.back);
+                vel.y -= 1;
+                p.rigid.velocity = vel;
+                //Vector3 tempPos = p.transform.position;
+                //float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
+                //float sin = Mathf.Sin(theta);
+                //tempPos.x += 4 * sin;
                 p = MakeProjectile(); // Make left Projectile
-                p.transform.rotation = Quaternion.AngleAxis(-15, Vector3.back);
-                p.rigid.velocity = p.transform.rotation * vel;
+                p.transform.rotation = Quaternion.AngleAxis(-10, Vector3.back);
+                p.rigid.velocity = vel;
                 break;
         }
     }
@@ -173,7 +190,16 @@ public class Weapon : MonoBehaviour {
             go.layer = LayerMask.NameToLayer("ProjectileEnemy");
         }
         go.transform.position = collar.transform.position;
-        go.transform.SetParent(PROJECTILE_ANCHOR, true);
+        if (type == WeaponType.phaser)
+        {
+            Rigidbody rb = go.GetComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.FreezePositionX;
+            go.transform.SetParent(parent.transform, true);
+        }
+        else
+        {
+            go.transform.SetParent(PROJECTILE_ANCHOR, true);
+        }
         Projectile p = go.GetComponent<Projectile>();
         p.type = type;
         lastShotTime = Time.time;
@@ -182,13 +208,16 @@ public class Weapon : MonoBehaviour {
 
     public void Update()
     {
-        if(lastShotTime % 2 <= 1)
+        if(type == WeaponType.phaser)
         {
-            age = -1;
-        }
-        else if (lastShotTime % 2 >= 1)
-        {
-            age = 1;
+            phaserList = GameObject.FindGameObjectsWithTag("ProjectileHero");
+            if (phaserList != null)
+            {
+                foreach (GameObject element in phaserList)
+                {
+                    element.transform.position = Vector3.MoveTowards(element.transform.position, parent.transform.position, (1*Time.deltaTime));
+                }
+            }
         }
     }
 }

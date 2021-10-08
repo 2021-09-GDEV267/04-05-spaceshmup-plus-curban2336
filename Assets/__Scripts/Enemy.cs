@@ -21,6 +21,10 @@ public class Enemy : MonoBehaviour {
 
     protected BoundsCheck bndCheck;
 
+    public delegate void WeaponFireDelegate();
+    // Create a WeaponFireDelegate field named fireDelegate.
+    public WeaponFireDelegate fireDelegate;
+
     private void Awake()
     {
         bndCheck = GetComponent<BoundsCheck>();
@@ -31,6 +35,8 @@ public class Enemy : MonoBehaviour {
         {
             originalColors[i] = materials[i].color;
         }
+
+        InvokeRepeating("fireDelegate", 4f, 2f);
     }
 
     // This is a property: A method that acts like a field

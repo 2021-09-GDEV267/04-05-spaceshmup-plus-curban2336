@@ -98,6 +98,16 @@ public class Hero : MonoBehaviour {
         }
     }
 
+    private void OnCollisionEnter(Collision coll)
+    {
+        GameObject other = coll.gameObject;
+        if (other.tag == "ProjectileEnemy")
+        {
+            shieldLevel--;
+            Destroy(other);
+        }
+    }
+
     public void AbsorbPowerUp(GameObject go)
     {
         PowerUp pu = go.GetComponent<PowerUp>();
