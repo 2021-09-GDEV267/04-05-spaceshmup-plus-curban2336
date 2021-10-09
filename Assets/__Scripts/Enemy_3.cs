@@ -12,6 +12,10 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
     public Vector3[] points;
     public float birthTime;
 
+    public delegate void WeaponFireDelegate();
+    // Create a WeaponFireDelegate field named fireDelegate.
+    public WeaponFireDelegate fireDelegate;
+
     private void Start()
     {
         points = new Vector3[3]; // Initialize points
@@ -38,6 +42,19 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
 
         // Set the birthTime to the current time
         birthTime = Time.time;
+
+        Invoke("Combat", 0f);
+    }
+
+    public void Combat()
+    {
+        float timer = Time.deltaTime;
+        if (timer % 2 < 1)
+        {
+            Debug.Log("Fire");
+            fireDelegate();
+        }
+        Invoke("Combat", 0.5f);
     }
 
     public override void Move()
@@ -45,7 +62,7 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
         // Bezier curves work based on a u value between 0 & 1
         float u = (Time.time - birthTime) / lifeTime;
 
-        if (u > 1)
+        if (u > 2)
         {
             // This Enemy_3 has finished its life
             Destroy(this.gameObject);

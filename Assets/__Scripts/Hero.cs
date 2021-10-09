@@ -100,11 +100,19 @@ public class Hero : MonoBehaviour {
 
     private void OnCollisionEnter(Collision coll)
     {
-        GameObject other = coll.gameObject;
-        if (other.tag == "ProjectileEnemy")
+        GameObject go = coll.gameObject;
+        print("Triggered: " + go.name);
+
+        // Make sure it's not the same triggering go as last time
+        if (go == lastTriggerGo)
+        {
+            return;
+        }
+        lastTriggerGo = go;
+        if (go.tag == "ProjectileEnemy")
         {
             shieldLevel--;
-            Destroy(other);
+            Destroy(go);
         }
     }
 

@@ -70,9 +70,13 @@ public class Weapon : MonoBehaviour {
         {
             rootGO.GetComponent<Hero>().fireDelegate += Fire;
         }
-        if (rootGO.GetComponent<Enemy>() != null)
+        if (rootGO.GetComponent<Enemy_4>() != null)
         {
-            rootGO.GetComponent<Enemy>().fireDelegate += Fire;
+            rootGO.GetComponent<Enemy_4>().fireDelegate += Fire;
+        }
+        if (rootGO.GetComponent<Enemy_3>() != null)
+        {
+            rootGO.GetComponent<Enemy_3>().fireDelegate += Fire;
         }
     }
 
@@ -127,7 +131,7 @@ public class Weapon : MonoBehaviour {
                 p = MakeProjectile();
                 if(p.tag == "ProjectileEnemy")
                 {
-                    p.rigid.velocity = -vel;
+                    p.rigid.velocity = vel;
                 }
                 else
                 {
@@ -153,24 +157,30 @@ public class Weapon : MonoBehaviour {
                 break;
 
             case WeaponType.phaser:
-                parent = Instantiate<GameObject>(def.projectilePrefab);
-                parent.tag = "Untagged";
-                Rigidbody rb = parent.GetComponent<Rigidbody>();
-                MeshRenderer mesh = parent.GetComponent<MeshRenderer>();
-                parent.transform.position = collar.transform.position;
-                parent.transform.SetParent(PROJECTILE_ANCHOR, true);
-                rb.velocity = vel;
-                mesh.enabled = false;
-                p = MakeProjectile(); // Make right Projectile
+                //parent = Instantiate<GameObject>(def.projectilePrefab);
+                //parent.tag = "Untagged";
+                //Rigidbody rb = parent.GetComponent<Rigidbody>();
+                //MeshRenderer mesh = parent.GetComponent<MeshRenderer>();
+                //parent.transform.position = collar.transform.position;
+                //parent.transform.SetParent(PROJECTILE_ANCHOR, true);
+                //rb.velocity = vel;
+                //mesh.enabled = false;
+                p = MakeProjectile(); // Make right Projectile;
                 p.transform.rotation = Quaternion.AngleAxis(10, Vector3.back);
-                vel.y -= 1;
+                //vel.y -= 1;
+                Vector3 tempVel = vel;
+                float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
+                float sin = Mathf.Sin(theta);
+                tempVel.x += 4 * sin;
+                vel = tempVel;
                 p.rigid.velocity = vel;
-                //Vector3 tempPos = p.transform.position;
-                //float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
-                //float sin = Mathf.Sin(theta);
-                //tempPos.x += 4 * sin;
                 p = MakeProjectile(); // Make left Projectile
                 p.transform.rotation = Quaternion.AngleAxis(-10, Vector3.back);
+                tempVel = vel;
+                theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
+                sin = Mathf.Sin(theta);
+                tempVel.x += 4 * sin;
+                tempVel = vel;
                 p.rigid.velocity = vel;
                 break;
         }
@@ -194,7 +204,8 @@ public class Weapon : MonoBehaviour {
         {
             Rigidbody rb = go.GetComponent<Rigidbody>();
             rb.constraints = RigidbodyConstraints.FreezePositionX;
-            go.transform.SetParent(parent.transform, true);
+            //go.transform.SetParent(parent.transform, true);
+            go.transform.SetParent(PROJECTILE_ANCHOR, true);
         }
         else
         {
@@ -215,7 +226,11 @@ public class Weapon : MonoBehaviour {
             {
                 foreach (GameObject element in phaserList)
                 {
-                    element.transform.position = Vector3.MoveTowards(element.transform.position, parent.transform.position, (1*Time.deltaTime));
+                    Vector3 tempVel = element.GetComponent<Rigidbody>().velocity;
+                    float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
+                    float sin = Mathf.Sin(theta);
+                    tempVel.x += 4 * sin;
+                    element.GetComponent<Rigidbody>().velocity = tempVel;
                 }
             }
         }
