@@ -48,6 +48,8 @@ public class Weapon : MonoBehaviour {
     public GameObject collar;
     public float lastShotTime; // Time last shot was fired
     private Renderer collarRend;
+    private Vector3 velo;
+    public float timer;
 
     private void Start()
     {
@@ -165,22 +167,15 @@ public class Weapon : MonoBehaviour {
                 //parent.transform.SetParent(PROJECTILE_ANCHOR, true);
                 //rb.velocity = vel;
                 //mesh.enabled = false;
+                velo = vel;
                 p = MakeProjectile(); // Make right Projectile;
-                p.transform.rotation = Quaternion.AngleAxis(10, Vector3.back);
+                p.direction = "Right";
                 //vel.y -= 1;
-                Vector3 tempVel = vel;
-                float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
-                float sin = Mathf.Sin(theta);
-                tempVel.x += 4 * sin;
-                vel = tempVel;
+                p.transform.position = new Vector3(p.transform.position.x+1, p.transform.position.y, p.transform.position.z);
                 p.rigid.velocity = vel;
                 p = MakeProjectile(); // Make left Projectile
-                p.transform.rotation = Quaternion.AngleAxis(-10, Vector3.back);
-                tempVel = vel;
-                theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
-                sin = Mathf.Sin(theta);
-                tempVel.x += 4 * sin;
-                tempVel = vel;
+                p.direction = "Left";
+                p.transform.position = new Vector3(p.transform.position.x - 1, p.transform.position.y, p.transform.position.z);
                 p.rigid.velocity = vel;
                 break;
         }
@@ -202,8 +197,8 @@ public class Weapon : MonoBehaviour {
         go.transform.position = collar.transform.position;
         if (type == WeaponType.phaser)
         {
-            Rigidbody rb = go.GetComponent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.FreezePositionX;
+            //Rigidbody rb = go.GetComponent<Rigidbody>();
+            //rb.constraints = RigidbodyConstraints.FreezePositionX;
             //go.transform.SetParent(parent.transform, true);
             go.transform.SetParent(PROJECTILE_ANCHOR, true);
         }
@@ -219,7 +214,16 @@ public class Weapon : MonoBehaviour {
 
     public void Update()
     {
-        if(type == WeaponType.phaser)
+        if (Time.time % 1.5 >= 1)
+        {
+            timer = 1;
+        }
+        else if (Time.time % 1.5 < 1 && Time.time % 1.5 >= 0)
+        {
+            timer = -1;
+        }
+
+        if (type == WeaponType.phaser)
         {
             phaserList = GameObject.FindGameObjectsWithTag("ProjectileHero");
             if (phaserList != null)
@@ -229,7 +233,15 @@ public class Weapon : MonoBehaviour {
                     Vector3 tempVel = element.GetComponent<Rigidbody>().velocity;
                     float theta = Mathf.PI * 2 * (lastShotTime - Time.time) / 2;
                     float sin = Mathf.Sin(theta);
-                    tempVel.x += 4 * sin;
+                    if(element.GetComponent<Projectile>().direction == "Left")
+                    {
+                        tempVel.x = (10 * sin) * timer;
+                    }
+                    else if (element.GetComponent<Projectile>().direction == "Right")
+                    {
+                        tempVel.x = -((10 * sin) * timer);
+                    }
+                    
                     element.GetComponent<Rigidbody>().velocity = tempVel;
                 }
             }
