@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour {
     public Rigidbody rigid;
     [SerializeField]
     private WeaponType _type;
+    private string _direction;
 
     // This public property masks the field _type and takes action when it is set
     public WeaponType type
@@ -24,6 +25,19 @@ public class Projectile : MonoBehaviour {
             SetType(value);
         }
     }
+
+    public string direction
+    {
+        get
+        {
+            return (_direction);
+        }
+        set
+        {
+            SetDirection(value);
+        }
+    }
+
     private void Awake()
     {
         bndCheck = GetComponent<BoundsCheck>();
@@ -37,6 +51,15 @@ public class Projectile : MonoBehaviour {
         {
             Destroy(gameObject);
         }
+        else if (bndCheck.offDown)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void SetDirection(string newDirection)
+    {
+        _direction = newDirection;
     }
 
     ///<summary>

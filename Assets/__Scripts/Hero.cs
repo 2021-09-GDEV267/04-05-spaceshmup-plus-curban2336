@@ -17,7 +17,7 @@ public class Hero : MonoBehaviour {
 
     [Header("Set Dynamically")]
     [SerializeField]
-    public float _shieldLevel = 1;
+    public float _shieldLevel = 4;
 
     // This variable holds a reference to the last triggering GameObject
     private GameObject lastTriggerGo = null;
@@ -95,6 +95,24 @@ public class Hero : MonoBehaviour {
         else
         {
             print("Triggered by non-Enemy: " + go.name);
+        }
+    }
+
+    private void OnCollisionEnter(Collision coll)
+    {
+        GameObject go = coll.gameObject;
+        print("Triggered: " + go.name);
+
+        // Make sure it's not the same triggering go as last time
+        if (go == lastTriggerGo)
+        {
+            return;
+        }
+        lastTriggerGo = go;
+        if (go.tag == "ProjectileEnemy")
+        {
+            shieldLevel--;
+            Destroy(go);
         }
     }
 

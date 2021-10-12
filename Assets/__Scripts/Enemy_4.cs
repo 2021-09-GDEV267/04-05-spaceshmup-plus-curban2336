@@ -49,6 +49,8 @@ public class Enemy_4 : Enemy {
                 prt.mat = prt.go.GetComponent<Renderer>().material;
             }
         }
+
+        Invoke("Combat", 4f);
     }
 
     void InitMovement()
@@ -62,6 +64,16 @@ public class Enemy_4 : Enemy {
 
         // Reset the time
         timeStart = Time.time;
+    }
+
+    public override void Combat()
+    {
+        float timer = Time.deltaTime;
+        if (timer % 2 < 1)
+        {
+            base.fireDelegate();
+        }
+        Invoke("Combat", 2f);
     }
 
     public override void Move()
