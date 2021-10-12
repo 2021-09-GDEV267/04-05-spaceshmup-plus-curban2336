@@ -21,6 +21,10 @@ public class Enemy : MonoBehaviour {
 
     protected BoundsCheck bndCheck;
 
+    public delegate void WeaponFireDelegate();
+    // Create a WeaponFireDelegate field named fireDelegate.
+    public WeaponFireDelegate fireDelegate;
+
     private void Awake()
     {
         bndCheck = GetComponent<BoundsCheck>();
@@ -31,6 +35,11 @@ public class Enemy : MonoBehaviour {
         {
             originalColors[i] = materials[i].color;
         }
+    }
+
+    private void Start()
+    {
+        Invoke("Combat", 1f);
     }
 
     // This is a property: A method that acts like a field
@@ -44,6 +53,16 @@ public class Enemy : MonoBehaviour {
         {
             this.transform.position = value;
         }
+    }
+
+    public virtual void Combat()
+    {
+        float timer = Time.deltaTime;
+        if (timer % 2 < 1)
+        {
+            fireDelegate();
+        }
+        Invoke("Combat", 0.5f);
     }
 
     void Update()

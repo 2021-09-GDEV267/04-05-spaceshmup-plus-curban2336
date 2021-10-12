@@ -12,10 +12,6 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
     public Vector3[] points;
     public float birthTime;
 
-    public delegate void WeaponFireDelegate();
-    // Create a WeaponFireDelegate field named fireDelegate.
-    public WeaponFireDelegate fireDelegate;
-
     private void Start()
     {
         points = new Vector3[3]; // Initialize points
@@ -46,13 +42,12 @@ public class Enemy_3 : Enemy { // Enemy_3 extends Enemy
         Invoke("Combat", 0f);
     }
 
-    public void Combat()
+    public override void Combat()
     {
         float timer = Time.deltaTime;
         if (timer % 2 < 1)
         {
-            Debug.Log("Fire");
-            fireDelegate();
+            base.fireDelegate();
         }
         Invoke("Combat", 0.5f);
     }

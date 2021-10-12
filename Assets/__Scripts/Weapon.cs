@@ -72,13 +72,9 @@ public class Weapon : MonoBehaviour {
         {
             rootGO.GetComponent<Hero>().fireDelegate += Fire;
         }
-        if (rootGO.GetComponent<Enemy_4>() != null)
+        if (rootGO.GetComponent<Enemy>() != null)
         {
-            rootGO.GetComponent<Enemy_4>().fireDelegate += Fire;
-        }
-        if (rootGO.GetComponent<Enemy_3>() != null)
-        {
-            rootGO.GetComponent<Enemy_3>().fireDelegate += Fire;
+            rootGO.GetComponent<Enemy>().fireDelegate += Fire;
         }
     }
 
@@ -225,7 +221,15 @@ public class Weapon : MonoBehaviour {
 
         if (type == WeaponType.phaser)
         {
-            phaserList = GameObject.FindGameObjectsWithTag("ProjectileHero");
+            GameObject rootGO = transform.root.gameObject;
+            if(rootGO.tag == "Hero")
+            {
+                phaserList = GameObject.FindGameObjectsWithTag("ProjectileHero");
+            }
+            else if(rootGO.tag == "Enemy")
+            {
+                phaserList = GameObject.FindGameObjectsWithTag("ProjectileEnemy");
+            }
             if (phaserList != null)
             {
                 foreach (GameObject element in phaserList)

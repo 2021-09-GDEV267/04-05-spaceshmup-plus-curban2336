@@ -30,10 +30,6 @@ public class Enemy_4 : Enemy {
     private float timeStart; // Birth time for this Enemy_4
     private float duration = 4; // Duration of movement
 
-    public delegate void WeaponFireDelegate();
-    // Create a WeaponFireDelegate field named fireDelegate.
-    public WeaponFireDelegate fireDelegate;
-
     private void Start()
     {
         // There is already an initial position chosen by Main.SpawnEnemy()
@@ -70,13 +66,12 @@ public class Enemy_4 : Enemy {
         timeStart = Time.time;
     }
 
-    public void Combat()
+    public override void Combat()
     {
         float timer = Time.deltaTime;
         if (timer % 2 < 1)
         {
-            Debug.Log("Fire");
-            fireDelegate();
+            base.fireDelegate();
         }
         Invoke("Combat", 2f);
     }
