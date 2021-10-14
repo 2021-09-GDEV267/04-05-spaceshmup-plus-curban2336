@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour {
 
@@ -18,6 +19,7 @@ public class Enemy : MonoBehaviour {
     public bool showingDamage = false;
     public float damageDoneTime; // Time to stop showing damage
     public bool notifiedOfDestruction = false; // Will be used later
+    public Text scoreGT;
 
     protected BoundsCheck bndCheck;
 
@@ -40,6 +42,10 @@ public class Enemy : MonoBehaviour {
     private void Start()
     {
         Invoke("Combat", 1f);
+
+        GameObject scoreGO = GameObject.Find("ScoreCounter");
+        scoreGT = scoreGO.GetComponent<Text>();
+        scoreGT.text = "Score: " + Hero.S.scoreCount.ToString();
     }
 
     // This is a property: A method that acts like a field
@@ -116,6 +122,18 @@ public class Enemy : MonoBehaviour {
                     notifiedOfDestruction = true;
                     // Destroy this enemy
                     Destroy(this.gameObject);
+
+                    int tempScore = Hero.S.scoreCount;
+                    tempScore += score;
+                    Hero.S.scoreCount = tempScore;
+                    GameObject scoreGO = GameObject.Find("ScoreCounter");
+                    scoreGT = scoreGO.GetComponent<Text>();
+                    scoreGT.text = "Score: " + Hero.S.scoreCount.ToString();
+
+                    if (Hero.S.scoreCount > HighScore.score)
+                    {
+                        HighScore.score = Hero.S.scoreCount;
+                    }
                 }
                 Destroy(otherGO);
                 break;
